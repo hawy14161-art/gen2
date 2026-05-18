@@ -1,1 +1,825 @@
-# gen2
+# <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حصر مولدات الكهرباء</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Readex+Pro:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090D;--s1:#0F1118;--s2:#161B26;--s3:#1D2333;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.10);--b3:rgba(255,255,255,.18);
+  --gold:#C9A84C;--gold2:#E8C97A;--gold3:#8B6914;--gfog:rgba(201,168,76,.13);
+  --elec:#00D4FF;--efog:rgba(0,212,255,.12);
+  --grn:#00E887;--gfog2:rgba(0,232,135,.11);
+  --red:#FF4B4B;
+  --t1:#E8EDF5;--t2:#A8B4C8;--t3:#6B7A90;--t4:#3D4A5C;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Readex Pro',sans-serif;background:var(--bg);color:var(--t1);direction:rtl;min-height:100vh;overflow-x:hidden;}
+
+/* ── HERO ── */
+.hero{position:relative;padding:0 52px;background:linear-gradient(180deg,#0D1220 0%,var(--bg) 100%);border-bottom:1px solid var(--b2);overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-140px;right:-60px;width:640px;height:640px;background:radial-gradient(ellipse,rgba(201,168,76,.08) 0%,transparent 65%);pointer-events:none;}
+.hero::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.014) 0,rgba(255,255,255,.014) 1px,transparent 1px,transparent 72px),repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0,rgba(255,255,255,.014) 1px,transparent 1px,transparent 72px);pointer-events:none;}
+.hero-top{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;align-items:end;gap:32px;padding:46px 0 26px;border-bottom:1px solid var(--b1);}
+.htag{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.htag-ln{width:28px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
+.htag span{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+.htitle{font-family:'Amiri',serif;font-size:3.2rem;font-weight:700;line-height:1.1;color:var(--t1);}
+.htitle em{color:var(--gold);font-style:normal;}
+.hsub{font-size:.81rem;color:var(--t3);margin-top:8px;}
+
+/* KPI */
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;min-width:320px;}
+.kpi{background:var(--s2);border:1px solid var(--b2);border-radius:14px;padding:16px 20px;position:relative;overflow:hidden;transition:border-color .3s,transform .2s;cursor:default;}
+.kpi:hover{transform:translateY(-2px);}
+.kglow{position:absolute;top:-24px;left:-24px;width:80px;height:80px;border-radius:50%;opacity:.3;}
+.k-gold{border-color:rgba(201,168,76,.2);} .k-gold .kglow{background:var(--gold);} .k-gold .knum{color:var(--gold2);}
+.k-elec{border-color:rgba(0,212,255,.2);} .k-elec .kglow{background:var(--elec);} .k-elec .knum{color:var(--elec);}
+.k-grn {border-color:rgba(0,232,135,.2);} .k-grn  .kglow{background:var(--grn);} .k-grn  .knum{color:var(--grn);}
+.k-mst {border-color:var(--b2);}          .k-mst  .kglow{background:var(--t3);} .k-mst  .knum{color:var(--t2);}
+.knum{font-family:'Space Mono',monospace;font-size:1.85rem;font-weight:700;line-height:1;position:relative;}
+.klbl{font-size:.68rem;color:var(--t3);margin-top:5px;position:relative;}
+
+/* metrics */
+.hstrip{position:relative;z-index:1;display:flex;align-items:center;padding:11px 0;}
+.ms{display:flex;align-items:center;gap:9px;padding:0 22px;border-left:1px solid var(--b1);}
+.ms:first-child{padding-right:0;border-left:none;}
+.msdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.msdot.g{background:var(--gold);box-shadow:0 0 6px var(--gold);}
+.msdot.e{background:var(--elec);box-shadow:0 0 6px var(--elec);}
+.msdot.r{background:var(--grn);box-shadow:0 0 6px var(--grn);}
+.mstxt{font-size:.74rem;color:var(--t3);} .mstxt strong{color:var(--t2);font-weight:500;}
+
+/* ── CMDBAR ── */
+.cmdbar{background:rgba(15,17,24,.92);border-bottom:1px solid var(--b2);padding:11px 52px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:200;backdrop-filter:blur(28px);}
+.srch{position:relative;flex:1;min-width:220px;}
+.srch input{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:9px;padding:9px 40px 9px 14px;font-family:'Readex Pro',sans-serif;font-size:.83rem;color:var(--t1);outline:none;transition:all .2s;}
+.srch input::placeholder{color:var(--t4);}
+.srch input:focus{border-color:rgba(201,168,76,.4);box-shadow:0 0 0 3px var(--gfog);}
+.srch::after{content:'⌕';position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:1rem;pointer-events:none;}
+.prow{display:flex;gap:5px;overflow-x:auto;flex:2;}
+.prow::-webkit-scrollbar{height:0;}
+.fp{white-space:nowrap;padding:5px 13px;border:1px solid var(--b2);border-radius:20px;background:transparent;color:var(--t3);font-family:'Readex Pro',sans-serif;font-size:.73rem;cursor:pointer;transition:all .2s;flex-shrink:0;}
+.fp:hover{border-color:rgba(201,168,76,.3);color:var(--gold2);}
+.fp.on{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.07));border-color:rgba(201,168,76,.4);color:var(--gold2);box-shadow:0 2px 10px var(--gfog);}
+.cbarr{margin-right:auto;display:flex;gap:7px;align-items:center;}
+.vseg{display:flex;background:var(--s2);border:1px solid var(--b2);border-radius:9px;overflow:hidden;}
+.vsb{padding:6px 13px;border:none;background:transparent;color:var(--t3);font-family:'Readex Pro',sans-serif;font-size:.76rem;cursor:pointer;transition:all .2s;border-left:1px solid var(--b2);}
+.vsb:first-child{border-left:none;}
+.vsb.on{background:var(--s3);color:var(--gold2);}
+.acb{display:flex;align-items:center;gap:5px;padding:7px 15px;border:none;border-radius:9px;font-family:'Readex Pro',sans-serif;font-size:.77rem;cursor:pointer;transition:all .2s;}
+.acb-add{background:linear-gradient(135deg,var(--gold),var(--gold3));color:var(--bg);font-weight:700;box-shadow:0 3px 14px var(--gfog);}
+.acb-add:hover{transform:translateY(-1px);box-shadow:0 5px 20px var(--gfog);}
+.acb-save{background:linear-gradient(135deg,#1a4a2e,#0d2e1a);border:1px solid rgba(0,232,135,.3);color:var(--grn);font-weight:700;}
+.acb-save:hover{border-color:rgba(0,232,135,.5);box-shadow:0 3px 14px rgba(0,232,135,.15);transform:translateY(-1px);}
+.acb-gh{background:var(--s2);border:1px solid var(--b2);color:var(--t3);}
+.acb-gh:hover{border-color:var(--b3);color:var(--t2);}
+
+/* ── MAIN ── */
+main{padding:26px 52px 64px;position:relative;z-index:1;}
+
+/* ── BRAND BLOCKS ── */
+.blist{display:flex;flex-direction:column;gap:10px;}
+.bb{background:var(--s1);border:1px solid var(--b2);border-radius:16px;overflow:hidden;transition:border-color .3s,box-shadow .3s;animation:rise .35s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.bb:nth-child(1){animation-delay:.03s}.bb:nth-child(2){animation-delay:.06s}
+.bb:nth-child(3){animation-delay:.09s}.bb:nth-child(4){animation-delay:.12s}
+.bb:nth-child(n+5){animation-delay:.15s}
+.bb:hover{border-color:rgba(201,168,76,.2);}
+.bb.open{border-color:rgba(201,168,76,.38);box-shadow:0 8px 40px rgba(0,0,0,.44);}
+
+.bhead{display:grid;grid-template-columns:52px 1fr auto auto;align-items:center;gap:18px;padding:15px 22px;cursor:pointer;user-select:none;transition:background .2s;}
+.bhead:hover{background:rgba(255,255,255,.018);}
+.bb.open .bhead{background:rgba(201,168,76,.03);}
+.bico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;border:1px solid var(--b2);background:var(--s2);flex-shrink:0;transition:border-color .3s,box-shadow .3s;}
+.bb.open .bico{border-color:rgba(201,168,76,.28);box-shadow:0 0 14px var(--gfog);}
+.binf .bname{font-size:.94rem;font-weight:600;color:var(--t1);}
+.binf .bnos{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--t4);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;}
+.bchips{display:flex;gap:6px;align-items:center;}
+.ck{padding:4px 11px;border-radius:6px;font-size:.71rem;font-weight:500;border:1px solid;}
+.ck-v{background:var(--efog);border-color:rgba(0,212,255,.2);color:#67E8F9;}
+.ck-p{background:var(--gfog);border-color:rgba(201,168,76,.25);color:var(--gold2);}
+.bright{display:flex;align-items:center;gap:7px;}
+.bcnt{background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.06));border:1px solid rgba(201,168,76,.28);border-radius:8px;padding:5px 14px;font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;color:var(--gold2);white-space:nowrap;}
+.bphc{background:var(--efog);border:1px solid rgba(0,212,255,.2);border-radius:6px;padding:3px 9px;font-size:.67rem;color:var(--elec);}
+.bchv{color:var(--t4);font-size:.7rem;transition:transform .35s cubic-bezier(.4,0,.2,1);}
+.bb.open .bchv{transform:rotate(180deg);}
+
+/* power bar */
+.bbar{display:flex;align-items:center;gap:12px;padding:0 22px 11px;border-bottom:1px solid var(--b1);}
+.bbar-l{font-size:.63rem;color:var(--t4);min-width:62px;}
+.bbar-t{flex:1;height:3px;background:rgba(255,255,255,.05);border-radius:2px;position:relative;}
+.bbar-f{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--elec),var(--gold));transition:width .8s cubic-bezier(.4,0,.2,1);}
+.bbar-f::after{content:'';position:absolute;right:-4px;top:-4px;width:11px;height:11px;border-radius:50%;background:var(--gold2);box-shadow:0 0 10px var(--gold);}
+.bbar-v{font-family:'Space Mono',monospace;font-size:.63rem;color:var(--gold2);min-width:54px;text-align:left;}
+
+/* ── UNITS TABLE ── */
+.upanel{display:none;}
+.bb.open .upanel{display:block;}
+.utbl{width:100%;border-collapse:collapse;}
+.utbl thead tr{background:rgba(255,255,255,.022);border-bottom:1px solid var(--b2);}
+.utbl thead th{padding:9px 10px;text-align:center;font-family:'Space Mono',monospace;font-size:.58rem;font-weight:400;color:var(--t4);letter-spacing:1px;text-transform:uppercase;}
+.utbl tbody tr{border-bottom:1px solid var(--b1);transition:background .15s;}
+.utbl tbody tr:last-child{border-bottom:none;}
+.utbl tbody tr:hover{background:rgba(255,255,255,.02);}
+.utbl tbody td{padding:10px 10px;font-size:.82rem;color:var(--t2);vertical-align:middle;text-align:center;}
+
+/* drag */
+.dh{cursor:grab;color:var(--t4);font-size:.95rem;transition:color .2s;user-select:none;}
+.dh:hover{color:var(--gold2);}
+.drag-row{transition:opacity .18s;}
+.drag-row.dragging{opacity:.28;background:rgba(201,168,76,.07) !important;}
+.drag-row.drag-over td{border-top:2px solid var(--gold) !important;}
+
+/* ── PHOTO ── */
+.ph-cell{width:216px;padding:8px 10px !important;}
+.ph-box{
+  width:194px;height:152px;border-radius:12px;
+  background:rgba(255,255,255,.03);border:2px dashed rgba(201,168,76,.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .28s;gap:9px;margin:0 auto;
+}
+.ph-box:hover{border-color:var(--gold);background:var(--gfog);box-shadow:0 0 22px var(--gfog);transform:scale(1.02);}
+.ph-icon{font-size:2.1rem;color:rgba(201,168,76,.28);transition:color .2s;}
+.ph-lbl{font-size:.7rem;color:var(--t4);letter-spacing:.4px;transition:color .2s;}
+.ph-box:hover .ph-icon{color:var(--gold2);}
+.ph-box:hover .ph-lbl{color:var(--gold2);}
+.ph-img{width:194px;height:152px;border-radius:12px;position:relative;overflow:hidden;cursor:pointer;margin:0 auto;border:1px solid var(--b2);transition:border-color .2s;}
+.ph-img:hover{border-color:var(--gold);}
+.ph-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s;}
+.ph-img:hover img{transform:scale(1.07);}
+.ph-ov{position:absolute;inset:0;background:rgba(0,0,0,.54);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;font-size:.76rem;color:var(--gold2);font-weight:600;}
+.ph-img:hover .ph-ov{opacity:1;}
+
+/* badges */
+.ntag{display:inline-block;background:rgba(255,255,255,.07);border:1px solid var(--b2);border-radius:6px;padding:2px 9px;font-family:'Space Mono',monospace;font-size:.71rem;font-weight:700;color:var(--t1);}
+.vtag{display:inline-block;background:var(--efog);border:1px solid rgba(0,212,255,.2);border-radius:6px;padding:2px 9px;font-size:.71rem;color:#67E8F9;}
+.ptag{display:inline-block;background:var(--gfog);border:1px solid rgba(201,168,76,.25);border-radius:6px;padding:2px 9px;font-size:.71rem;font-weight:600;color:var(--gold2);}
+
+/* row actions */
+.ra{display:flex;gap:4px;justify-content:center;}
+.rib{width:29px;height:29px;border-radius:7px;border:1px solid var(--b2);background:transparent;cursor:pointer;font-size:.77rem;display:flex;align-items:center;justify-content:center;color:var(--t3);transition:all .15s;}
+.rib.rph:hover{background:var(--gfog);border-color:rgba(201,168,76,.3);color:var(--gold2);}
+.rib.red:hover{background:var(--efog);border-color:rgba(0,212,255,.3);color:var(--elec);}
+.rib.rdl:hover{background:rgba(255,75,75,.1);border-color:rgba(255,75,75,.3);color:var(--red);}
+
+.add-u{width:100%;padding:9px;border:none;border-top:1px solid var(--b1);background:rgba(0,232,135,.04);color:var(--grn);font-family:'Readex Pro',sans-serif;font-size:.79rem;font-weight:500;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.add-u:hover{background:rgba(0,232,135,.09);}
+
+/* ── LIST VIEW ── */
+.lw{background:var(--s1);border:1px solid var(--b2);border-radius:16px;overflow:hidden;}
+.lh,.lr{display:grid;grid-template-columns:210px 56px 1fr 115px 115px 170px 88px;align-items:center;gap:10px;padding:10px 18px;}
+.lh{background:rgba(255,255,255,.022);border-bottom:1px solid var(--b2);}
+.lh span{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:1px;color:var(--t4);text-transform:uppercase;text-align:center;}
+.lr{border-bottom:1px solid var(--b1);transition:background .14s;}
+.lr:last-child{border-bottom:none;}
+.lr:hover{background:rgba(255,255,255,.02);}
+.lr>*{text-align:center;}
+
+/* ── MODAL ── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);}
+.ov.hidden{display:none;}
+.modal{background:var(--s1);border:1px solid var(--b3);border-radius:20px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:28px 30px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.7);animation:mIn .23s ease;}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(14px)}to{opacity:1;transform:none}}
+.mhd{display:flex;align-items:center;gap:10px;margin-bottom:22px;padding-bottom:15px;border-bottom:1px solid var(--b1);}
+.mhd::before{content:'';width:4px;height:22px;background:linear-gradient(180deg,var(--gold),var(--gold3));border-radius:2px;flex-shrink:0;}
+.mhd h2{font-family:'Amiri',serif;font-size:1.22rem;font-weight:700;color:var(--t1);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg{} .fg.full{grid-column:1/-1;}
+.fg label{display:block;font-size:.68rem;font-weight:600;color:var(--t3);margin-bottom:5px;letter-spacing:.6px;text-transform:uppercase;}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:9px;padding:9px 12px;font-family:'Readex Pro',sans-serif;font-size:.86rem;color:var(--t1);outline:none;transition:all .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:rgba(201,168,76,.42);box-shadow:0 0 0 3px var(--gfog);}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--t4);}
+.fg textarea{resize:vertical;min-height:58px;}
+.fg select{appearance:none;cursor:pointer;}
+.fg select option{background:var(--s2);}
+.fsec{grid-column:1/-1;font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:2px;color:var(--t4);text-transform:uppercase;padding:6px 0 2px;border-top:1px solid var(--b1);margin-top:2px;}
+.macts{display:flex;gap:10px;margin-top:20px;}
+.btn-sv{flex:1;padding:11px;background:linear-gradient(135deg,var(--gold),var(--gold3));color:var(--bg);border:none;border-radius:10px;font-family:'Readex Pro',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px var(--gfog);}
+.btn-sv:hover{transform:translateY(-1px);box-shadow:0 6px 22px var(--gfog);}
+.btn-cn{padding:11px 18px;background:var(--s2);color:var(--t3);border:1px solid var(--b2);border-radius:10px;font-family:'Readex Pro',sans-serif;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.btn-cn:hover{border-color:var(--b3);color:var(--t2);}
+.xbtn{position:absolute;top:15px;left:15px;width:28px;height:28px;background:var(--s2);border:1px solid var(--b2);border-radius:50%;cursor:pointer;color:var(--t3);font-size:.78rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.xbtn:hover{color:var(--t2);}
+.conf-txt{color:var(--t3);font-size:.86rem;line-height:1.7;margin:6px 0 16px;}
+.btn-del{flex:1;padding:11px;background:linear-gradient(135deg,#EF4444,#B91C1C);color:#fff;border:none;border-radius:10px;font-family:'Readex Pro',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;}
+.btn-del:hover{transform:translateY(-1px);}
+
+input[type=file]{display:none;}
+.empty{text-align:center;padding:80px;color:var(--t4);}
+.empty-i{font-size:2.8rem;opacity:.22;display:block;margin-bottom:10px;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--t4);border-radius:2px;}
+/* ══════════════════════════════════════
+   RESPONSIVE — iPad (641px-1024px)
+══════════════════════════════════════ */
+@media(min-width:641px) and (max-width:1024px){
+  .hero{padding:0 28px;}
+  .hero-top{grid-template-columns:1fr;gap:20px;padding:36px 0 22px;}
+  .htitle{font-size:2.6rem;}
+  .krow{grid-template-columns:repeat(4,1fr);min-width:0;gap:10px;}
+  .knum{font-size:1.7rem;}
+  .hstrip{flex-wrap:wrap;gap:4px;}
+  .cmdbar{padding:10px 28px;gap:10px;}
+  .prow{max-width:380px;}
+  .cbarr{gap:6px;}
+  .acb{padding:8px 13px;font-size:.8rem;}
+  main{padding:22px 28px 52px;}
+  .bhead{grid-template-columns:48px 1fr auto auto;gap:14px;padding:14px 18px;}
+  .bchips{display:flex;}
+  .ph-cell{width:164px !important;padding:8px 10px !important;}
+  .ph-box,.ph-img{width:148px !important;height:118px !important;border-radius:10px;}
+  .ph-box{max-width:148px;}
+  .utbl thead{display:table-header-group;}
+  .utbl tbody tr{display:table-row;}
+  .utbl tbody td{display:table-cell;padding:10px 10px;}
+  .utbl tbody td::before{display:none;}
+  .lh,.lr{grid-template-columns:164px 50px 1fr 105px 105px 150px 82px;gap:8px;padding:10px 14px;}
+  .lw .lh{display:grid;}
+  .modal{border-radius:18px;max-width:520px;}
+  .fgrid{grid-template-columns:1fr 1fr;}
+  .fg.full{grid-column:1/-1;}
+  .ov{align-items:center;padding:20px;}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — Mobile (≤640px)
+══════════════════════════════════════ */
+@media(max-width:640px){
+  /* Hero */
+  .hero{padding:0 16px;}
+  .hero-top{padding:24px 0 16px;gap:16px;}
+  .htag{display:none;}
+  .htitle{font-size:1.9rem;}
+  .hsub{font-size:.75rem;}
+  .krow{grid-template-columns:repeat(2,1fr);gap:8px;min-width:0;}
+  .kpi{padding:12px 14px;border-radius:11px;}
+  .knum{font-size:1.4rem;}
+  .klbl{font-size:.62rem;}
+  .hstrip{flex-wrap:wrap;gap:6px;padding:10px 0;}
+  .ms{padding:0 10px;border-left:none;}
+  .ms:first-child{padding-right:0;}
+  .mstxt{font-size:.7rem;}
+
+  /* Cmdbar */
+  .cmdbar{padding:10px 16px;gap:8px;}
+  .srch{min-width:0;order:1;flex:1 1 100%;}
+  .prow{display:none;}
+  .cbarr{margin-right:0;width:100%;order:2;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+  .vseg{flex:1;}
+  .vsb{flex:1;font-size:.72rem;padding:7px 8px;}
+  .acb{font-size:.72rem;padding:7px 10px;}
+  .acb-save span,.acb-gh span{display:none;}
+
+  /* Main */
+  main{padding:14px 12px 48px;}
+
+  /* Brand blocks */
+  .bhead{grid-template-columns:40px 1fr auto;gap:10px;padding:12px 14px;}
+  .bchips{display:none;}
+  .bico{width:40px;height:40px;font-size:1.1rem;border-radius:10px;}
+  .binf .bname{font-size:.88rem;}
+  .binf .bnos{font-size:.56rem;max-width:160px;}
+  .bcnt{font-size:.72rem;padding:4px 10px;}
+  .bphc{display:none;}
+  .bbar{padding:0 14px 10px;}
+
+  /* Units table → card layout on mobile */
+  .utbl thead{display:none;}
+  .utbl tbody tr{
+    display:flex;flex-direction:column;
+    padding:12px 14px;gap:10px;
+    border-bottom:1px solid var(--b1);
+  }
+  .utbl tbody td{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0;text-align:right;font-size:.82rem;
+    border:none;
+  }
+  .utbl tbody td::before{
+    content:attr(data-label);
+    font-size:.65rem;color:var(--t4);font-family:'Space Mono',monospace;
+    letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;margin-left:10px;
+  }
+  /* Photo on mobile — centered full width */
+  .ph-cell{width:100% !important;padding:0 !important;justify-content:center;}
+  .ph-cell::before{display:none;}
+  .ph-box,.ph-img{width:100%;height:180px;border-radius:10px;}
+  .ph-box{max-width:100%;}
+  .ph-icon{font-size:2.4rem;}
+  .ph-lbl{font-size:.75rem;}
+  /* drag handle cell — hide on mobile (use long-press reorder instead) */
+  .utbl tbody td:first-child{display:none;}
+  /* actions cell */
+  .utbl tbody td:last-child{justify-content:flex-end;}
+  .utbl tbody td:last-child::before{display:none;}
+  .rib{width:36px;height:36px;font-size:.9rem;}
+
+  /* List view on mobile */
+  .lw .lh{display:none;}
+  .lr{
+    display:flex;flex-direction:column;
+    align-items:flex-start;gap:8px;padding:14px 16px;
+  }
+  .lr>*{text-align:right;}
+  .lr>div:first-child{width:100%;}
+  .ph-img,.ph-box{width:100%;height:160px;max-width:100%;}
+
+  /* Modal */
+  .modal{padding:22px 18px;border-radius:16px 16px 0 0;position:fixed;bottom:0;top:auto;max-width:100%;margin:0;border-bottom-left-radius:0;border-bottom-right-radius:0;max-height:88vh;}
+  .fgrid{grid-template-columns:1fr;}
+  .fg.full{grid-column:1;}
+  .ov{align-items:flex-end;padding:0;}
+
+  /* add unit */
+  .add-u{font-size:.85rem;padding:12px;}
+
+  /* scrollbar hidden on mobile */
+  ::-webkit-scrollbar{display:none;}
+}
+
+/* ══════════════════════════════════════
+   TOUCH — bigger tap targets
+══════════════════════════════════════ */
+@media(hover:none){
+  .rib{width:38px;height:38px;}
+  .fp{padding:8px 14px;}
+  .bhead{min-height:64px;}
+}
+
+/* ══════════════════════════════════════
+   PRINT
+══════════════════════════════════════ */
+@media print{
+  body{background:#fff;color:#000;}
+  .cmdbar,.ra,.add-u,.ov,.macts,.cbarr,.hero::after{display:none!important;}
+  .upanel{display:block!important;}
+  .bb{background:#fff;border:1px solid #ccc;break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-top">
+    <div>
+      <div class="htag"><div class="htag-ln"></div><span>Generator Inventory · 2026</span></div>
+      <h1 class="htitle">حصر <em>مولدات</em> الكهرباء</h1>
+      <p class="hsub">إدارة شاملة — مجمّع حسب الشركة — سحب لإعادة الترتيب</p>
+    </div>
+    <div class="krow">
+      <div class="kpi k-gold"><div class="kglow"></div><div class="knum" id="k1">0</div><div class="klbl">إجمالي المولدات</div></div>
+      <div class="kpi k-elec"><div class="kglow"></div><div class="knum" id="k2">0</div><div class="klbl">شركة مصنعة</div></div>
+      <div class="kpi k-grn"> <div class="kglow"></div><div class="knum" id="k3">0</div><div class="klbl">مع صور</div></div>
+      <div class="kpi k-mst"><div class="kglow"></div><div class="knum" id="k4">0</div><div class="klbl">إجمالي KW</div></div>
+    </div>
+  </div>
+  <div class="hstrip">
+    <div class="ms"><div class="msdot g"></div><span class="mstxt">أعلى قدرة: <strong id="m1">—</strong></span></div>
+    <div class="ms"><div class="msdot e"></div><span class="mstxt">المتوسط: <strong id="m2">—</strong></span></div>
+    <div class="ms"><div class="msdot r"></div><span class="mstxt">أكثر شركة: <strong id="m3">—</strong></span></div>
+  </div>
+</header>
+
+<div class="cmdbar">
+  <div class="srch"><input type="text" id="q" placeholder="ابحث بالشركة، الجهد، القدرة، الرقم، الموقع..." oninput="render()"></div>
+  <div class="prow" id="pills"></div>
+  <div class="cbarr">
+    <div class="vseg">
+      <button class="vsb on" id="vg" onclick="setV('g')">🏢 مجمّع</button>
+      <button class="vsb" id="vl" onclick="setV('l')">📋 قائمة</button>
+    </div>
+    <button class="acb acb-gh" onclick="toggleAll()">↕ فتح / طي</button>
+    <button class="acb acb-add" onclick="openAdd(null)">＋ مولد جديد</button>
+    <button class="acb acb-save" onclick="exportFile()" title="حفظ الملف مع الصور بداخله">💾 حفظ الملف</button>
+    <button class="acb acb-gh" onclick="window.print()">🖨</button>
+  </div>
+</div>
+
+<main>
+  <div id="view"></div>
+  <div class="empty" id="empty" style="display:none"><span class="empty-i">⌕</span>لا توجد نتائج</div>
+</main>
+
+<input type="file" id="fi" accept="image/*">
+
+<div class="ov hidden" id="m-ov">
+  <div class="modal">
+    <button class="xbtn" onclick="closeM()">✕</button>
+    <div class="mhd"><h2 id="m-ttl">إضافة مولد</h2></div>
+    <div class="fgrid">
+      <div class="fg"><label>الرقم *</label><input type="number" id="f-no" min="1"></div>
+      <div class="fg"><label>الشركة *</label><input type="text" id="f-br" list="bdl"><datalist id="bdl"></datalist></div>
+      <div class="fg"><label>الجهد *</label><input type="text" id="f-vt" list="vdl"><datalist id="vdl"><option value="220V"><option value="380V"><option value="480V"><option value="380/220V"><option value="220/110V"></datalist></div>
+      <div class="fg"><label>القدرة *</label><input type="text" id="f-pw" placeholder="100 KW"></div>
+      <div class="fsec">— بيانات إضافية</div>
+      <div class="fg full"><label>الموقع / المبنى</label><input type="text" id="f-lc" placeholder="المبنى A — الطابق 2"></div>
+      <div class="fg full"><label>ملاحظات</label><textarea id="f-nt" placeholder="..."></textarea></div>
+    </div>
+    <div class="macts">
+      <button class="btn-sv" onclick="saveG()">💾 حفظ</button>
+      <button class="btn-cn" onclick="closeM()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov hidden" id="d-ov">
+  <div class="modal" style="max-width:360px">
+    <div class="mhd"><h2>تأكيد الحذف</h2></div>
+    <p class="conf-txt" id="d-txt"></p>
+    <div class="macts">
+      <button class="btn-del" onclick="doDelete()">🗑 حذف نهائياً</button>
+      <button class="btn-cn" onclick="closeD()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEF=[
+  {no:1,v:"380/220V",p:"185 KW",b:"D-3406 CAT",lc:"",nt:""},
+  {no:2,v:"220V",p:"8 KW",b:"KOHLER",lc:"",nt:""},{no:3,v:"220V",p:"8 KW",b:"KOHLER",lc:"",nt:""},
+  {no:4,v:"220V",p:"8 KW",b:"KOHLER",lc:"",nt:""},{no:5,v:"220V",p:"8 KW",b:"KOHLER",lc:"",nt:""},
+  {no:6,v:"220V",p:"8 KW",b:"KOHLER",lc:"",nt:""},{no:7,v:"220V",p:"8 KW",b:"KOHLER",lc:"",nt:""},
+  {no:8,v:"220V",p:"8 KW",b:"KOHLER",lc:"",nt:""},
+  {no:9,v:"380/220V",p:"210 KW",b:"D-3406 CAT",lc:"",nt:""},
+  {no:10,v:"380/220V",p:"200 KW",b:"D-3406 CAT",lc:"",nt:""},
+  {no:11,v:"380/220V",p:"135 KW",b:"KOHLER",lc:"",nt:""},
+  {no:12,v:"220V",p:"8 KW",b:"CUMMINS",lc:"",nt:""},
+  {no:13,v:"380V",p:"48 KW",b:"CUMMINS",lc:"",nt:""},{no:14,v:"380V",p:"48 KW",b:"CUMMINS",lc:"",nt:""},
+  {no:15,v:"380V",p:"48 KW",b:"CUMMINS",lc:"",nt:""},{no:16,v:"380V",p:"48 KW",b:"CUMMINS",lc:"",nt:""},
+  {no:17,v:"380V",p:"48 KW",b:"CUMMINS",lc:"",nt:""},{no:18,v:"380V",p:"48 KW",b:"CUMMINS",lc:"",nt:""},
+  {no:19,v:"220V",p:"8 KW",b:"LISTER",lc:"",nt:""},{no:20,v:"220V",p:"8 KW",b:"LISTER",lc:"",nt:""},
+  {no:21,v:"220/110V",p:"12 KW",b:"LISTER",lc:"",nt:""},
+  {no:22,v:"220V",p:"27 KW",b:"PERKINS",lc:"",nt:""},
+  {no:23,v:"380V",p:"100 KW",b:"CUMMINS",lc:"",nt:""},
+  {no:24,v:"220V",p:"120 KW",b:"DE 150 EO",lc:"",nt:""},
+  {no:25,v:"380V",p:"48 KW",b:"CUMMINS",lc:"",nt:""},
+  {no:26,v:"380V",p:"28 KW",b:"PERKINS",lc:"",nt:""},{no:27,v:"380V",p:"27 KW",b:"PERKINS",lc:"",nt:""},
+  {no:28,v:"380/220V",p:"350 KW",b:"PERKINS",lc:"",nt:""},
+  {no:29,v:"380V",p:"396 KW",b:"CUMMINS - CHINA",lc:"",nt:""},
+  {no:30,v:"380V",p:"396 KW",b:"CUMMINS - CHINA",lc:"",nt:""},
+  {no:31,v:"480V",p:"500 KW",b:"CUMMINS - CHINA",lc:"",nt:""},
+  {no:32,v:"380V",p:"800 KW",b:"PERKINS - CHINA",lc:"",nt:""},
+  {no:33,v:"380V",p:"380 KW",b:"DOOSAN",lc:"",nt:""},
+  {no:34,v:"380V",p:"400 KW",b:"PERKINS",lc:"",nt:""},{no:35,v:"380V",p:"400 KW",b:"PERKINS",lc:"",nt:""},
+  {no:36,v:"380/220V",p:"350 KW",b:"PERKINS",lc:"",nt:""},{no:37,v:"220V",p:"350 KW",b:"PERKINS",lc:"",nt:""},
+  {no:38,v:"380V",p:"384 KW",b:"PERKINS",lc:"",nt:""},{no:39,v:"380V",p:"384 KW",b:"PERKINS",lc:"",nt:""},
+  {no:40,v:"380V",p:"380 KW",b:"DOOSAN",lc:"",nt:""},
+  {no:41,v:"380V",p:"100 KW",b:"PERKINS",lc:"",nt:""},
+  {no:42,v:"380/220V",p:"36 KW",b:"KIRLOSKAR",lc:"",nt:""},
+  {no:43,v:"380/220V",p:"820 KW",b:"MTU",lc:"",nt:""},
+  {no:44,v:"480V",p:"1000 KW",b:"CATTER D-3508",lc:"",nt:""},
+  {no:45,v:"380V",p:"28.8 KW",b:"DEUTZ",lc:"",nt:""},
+  {no:46,v:"380V",p:"27 KW",b:"PERKINS",lc:"",nt:""},
+  {no:47,v:"380V",p:"210 KW",b:"D-3406 CAT",lc:"",nt:""},
+  {no:48,v:"380V",p:"7 KW",b:"KOHLER",lc:"",nt:""},
+  {no:49,v:"220/110V",p:"7.5 KW",b:"KOHLER",lc:"",nt:""},
+  {no:50,v:"220/110V",p:"2 KW",b:"ROBIN",lc:"",nt:""},
+  {no:51,v:"220V",p:"1.5 KW",b:"ROBIN",lc:"",nt:""},
+  {no:52,v:"220V",p:"2.24 KW",b:"HONDA",lc:"",nt:""},
+];
+
+let G=[],IMG={},V='g',OPEN=new Set(),BF='',editNo=null,delNo=null,imgNo=null;
+const ICONS=['⚡','🔧','🏭','🔌','⚙️','🛠️','🔩','💡','🔋','🏗️','🔦','🛢️','🔆','⚙️'];
+const BMAP={};let _bc=0;
+function bI(b){if(!BMAP[b]){BMAP[b]=ICONS[_bc%ICONS.length];_bc++;}return BMAP[b];}
+
+function save(){try{localStorage.setItem('gv6',JSON.stringify(G));localStorage.setItem('gi6',JSON.stringify(IMG));}catch(e){}}
+function load(){
+  try{
+    // 1. بيانات مدمجة داخل الملف (من exportFile)
+    if(window.__BAKED_G__ && window.__BAKED_G__.length){
+      G=window.__BAKED_G__;
+      IMG=window.__BAKED_IMG__||{};
+    }
+    // 2. localStorage
+    else{
+      const d=localStorage.getItem('gv6');
+      G=d?JSON.parse(d):DEF.map(x=>({...x}));
+      const i=localStorage.getItem('gi6');
+      IMG=i?JSON.parse(i):{};
+    }
+  }catch(e){G=DEF.map(x=>({...x}));IMG={};}
+  G.forEach(g=>bI(g.b));
+}
+
+/* ════ EXPORT — يعمل على جميع الأجهزة ════ */
+async function exportFile(){
+  showToast('⏳ جاري تحضير الملف...');
+  try {
+    const gJson = JSON.stringify(G);
+    const imgJson = JSON.stringify(IMG);
+    let src = await fetch(location.href).then(r=>r.text());
+
+    // حقن البيانات
+    if(src.includes('__BAKED_G__')){
+      src = src.replace(
+        /window\.__BAKED_G__\s*=[\s\S]*?window\.__BAKED_IMG__\s*=.*?;/,
+        `window.__BAKED_G__=${gJson};\nwindow.__BAKED_IMG__=${imgJson};`
+      );
+    } else {
+      src = src.replace('</body>',
+        `<script id="__baked__">\nwindow.__BAKED_G__=${gJson};\nwindow.__BAKED_IMG__=${imgJson};\n<\/script>\n</body>`
+      );
+    }
+
+    const blob = new Blob([src],{type:'text/html;charset=utf-8'});
+    const fname = 'حصر_مولدات_محفوظ.html';
+
+    // ── iOS Safari: Web Share API ──
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    if(isIOS || isSafari){
+      // حاول Web Share مع ملف
+      if(navigator.share){
+        const file = new File([blob], fname, {type:'text/html'});
+        try {
+          await navigator.share({title:'حصر مولدات الكهرباء', files:[file]});
+          showToast('✅ اختر "حفظ في الملفات" من القائمة');
+          return;
+        } catch(e){ /* المستخدم ألغى أو غير مدعوم — نكمل */ }
+      }
+      // Fallback iOS: data URI
+      const reader = new FileReader();
+      reader.onload = function(){
+        const a = document.createElement('a');
+        a.href = reader.result;
+        a.download = fname;
+        a.click();
+      };
+      reader.readAsDataURL(blob);
+      showToast('✅ اضغط "حفظ في الملفات" إذا ظهرت نافذة');
+      return;
+    }
+
+    // ── Android Chrome ──
+    if('showSaveFilePicker' in window){
+      try {
+        const fh = await window.showSaveFilePicker({
+          suggestedName: fname,
+          types:[{description:'HTML File',accept:{'text/html':['.html']}}]
+        });
+        const w = await fh.createWritable();
+        await w.write(blob);
+        await w.close();
+        showToast('✅ تم الحفظ بنجاح!');
+        return;
+      } catch(e){ /* ألغى أو غير مدعوم */ }
+    }
+
+    // ── Android / Desktop — تنزيل عادي ──
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    showToast('✅ تم تنزيل الملف — تحقق من مجلد التنزيلات');
+
+  } catch(err){
+    console.warn(err);
+    // آخر حل: حفظ البيانات كـ JSON
+    const blob = new Blob([JSON.stringify({G,IMG})],{type:'application/json'});
+    if(navigator.share){
+      try {
+        await navigator.share({title:'بيانات المولدات',files:[new File([blob],'بيانات.json',{type:'application/json'})]});
+        showToast('✅ شارك أو احفظ الملف');
+      } catch(e){ showToast('❌ تعذّر الحفظ — جرب Chrome أو Firefox'); }
+    } else {
+      showToast('❌ تعذّر الحفظ — جرب فتح الملف في Chrome');
+    }
+  }
+}
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a4a2e,#0d2e1a);border:1px solid rgba(0,232,135,.4);color:#00E887;padding:12px 24px;border-radius:10px;font-size:.85rem;font-weight:600;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:toastIn .3s ease';
+  document.head.insertAdjacentHTML('beforeend','<style>@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}</style>');
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+function stats(list){
+  const ph=G.filter(g=>IMG[g.no]).length;
+  const kws=list.map(g=>parseFloat(g.p)||0);
+  const tot=kws.reduce((s,k)=>s+k,0);
+  const mx=Math.max(...kws,0);
+  const topB=Object.entries(list.reduce((m,g)=>{m[g.b]=(m[g.b]||0)+1;return m;},{})).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('k1').textContent=G.length;
+  document.getElementById('k2').textContent=new Set(G.map(g=>g.b)).size;
+  document.getElementById('k3').textContent=ph;
+  document.getElementById('k4').textContent=Math.round(G.reduce((s,g)=>s+(parseFloat(g.p)||0),0)).toLocaleString();
+  document.getElementById('m1').textContent=mx+' KW';
+  document.getElementById('m2').textContent=list.length?Math.round(tot/list.length)+' KW':'—';
+  document.getElementById('m3').textContent=topB?topB[0]+' ('+topB[1]+')':'—';
+}
+
+function grp(list){const m={};list.forEach(g=>{(m[g.b]=m[g.b]||[]).push(g);});return Object.entries(m).sort((a,b)=>b[1].length-a[1].length);}
+
+function phHtml(no){
+  if(IMG[no])return`<div class="ph-img" onclick="pickImg(${no})"><img src="${IMG[no]}"><div class="ph-ov">🔄 تغيير</div></div>`;
+  return`<div class="ph-box" onclick="pickImg(${no})"><span class="ph-icon">📷</span><span class="ph-lbl">اضغط لإضافة صورة</span></div>`;
+}
+
+function renderGrouped(list){
+  const vEl=document.getElementById('view');
+  vEl.innerHTML='';vEl.className='blist';
+  const groups=grp(list);
+  const gMax=Math.max(...list.map(g=>parseFloat(g.p)||0),1);
+  groups.forEach(([brand,units])=>{
+    const icon=bI(brand);
+    const ph=units.filter(u=>IMG[u.no]).length;
+    const kws=units.map(u=>parseFloat(u.p)||0);
+    const maxK=Math.max(...kws),minK=Math.min(...kws);
+    const volts=[...new Set(units.map(u=>u.v))];
+    const pct=Math.round((maxK/gMax)*100);
+    const isOpen=OPEN.has(brand);
+    const brs=brand.replace(/'/g,"\\'");
+    const rows=units.map(u=>`
+      <tr class="drag-row" draggable="true" data-no="${u.no}">
+        <td><span class="dh" title="سحب لإعادة الترتيب">⠿</span></td>
+        <td class="ph-cell" data-label="الصورة">${phHtml(u.no)}</td>
+        <td data-label="الرقم"><span class="ntag">#${u.no}</span></td>
+        <td data-label="الجهد"><span class="vtag">${u.v}</span></td>
+        <td data-label="القدرة"><span class="ptag">${u.p}</span></td>
+        <td data-label="الموقع" style="font-size:.77rem;color:var(--t3)">${u.lc||'—'}</td>
+        <td data-label="ملاحظات" style="font-size:.73rem;color:var(--t3)">${u.nt||'—'}</td>
+        <td><div class="ra">
+          <button class="rib rph" onclick="pickImg(${u.no})" title="صورة">📷</button>
+          <button class="rib red" onclick="openEdit(${u.no})" title="تعديل">✏</button>
+          <button class="rib rdl" onclick="openDel(${u.no})" title="حذف">✕</button>
+        </div></td>
+      </tr>`).join('');
+    const bl=document.createElement('div');
+    bl.className='bb'+(isOpen?' open':'');
+    bl.dataset.brand=brand;
+    bl.innerHTML=`
+      <div class="bhead" onclick="toggleB('${brs}',this)">
+        <div class="bico">${icon}</div>
+        <div class="binf"><div class="bname">${brand}</div><div class="bnos">${units.map(u=>'#'+u.no).join(' · ')}</div></div>
+        <div class="bchips">
+          <span class="ck ck-v">${volts.join(' / ')}</span>
+          <span class="ck ck-p">${minK===maxK?maxK+' KW':minK+'–'+maxK+' KW'}</span>
+        </div>
+        <div class="bright">
+          <div class="bcnt">${units.length} <span style="opacity:.5;font-size:.68rem">مولد</span></div>
+          ${ph?`<div class="bphc">📷 ${ph}</div>`:''}
+          <div class="bchv">▼</div>
+        </div>
+      </div>
+      <div class="bbar">
+        <span class="bbar-l">القدرة القصوى</span>
+        <div class="bbar-t"><div class="bbar-f" style="width:${pct}%"></div></div>
+        <span class="bbar-v">${maxK} KW</span>
+      </div>
+      <div class="upanel">
+        <table class="utbl">
+          <thead><tr>
+            <th></th><th>صورة</th><th>م</th><th>الجهد</th><th>القدرة</th><th>الموقع</th><th>ملاحظات</th><th></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <button class="add-u" onclick="openAdd('${brs}')">＋ إضافة مولد لـ ${brand}</button>
+      </div>`;
+    vEl.appendChild(bl);
+  });
+}
+
+function renderList(list){
+  const vEl=document.getElementById('view');
+  vEl.innerHTML='';vEl.className='';
+  const wrap=document.createElement('div');
+  wrap.className='lw';
+  wrap.innerHTML=`
+    <div class="lh"><span>صورة</span><span>م</span><span>الشركة</span><span>الجهد</span><span>القدرة</span><span>الموقع</span><span></span></div>
+    ${list.map(g=>`
+    <div class="lr">
+      <div style="display:flex;justify-content:center">${phHtml(g.no)}</div>
+      <span class="ntag">#${g.no}</span>
+      <span style="font-weight:500;color:var(--t1);font-size:.82rem">${g.b}</span>
+      <span class="vtag">${g.v}</span>
+      <span class="ptag">${g.p}</span>
+      <span style="font-size:.75rem;color:var(--t3)">${g.lc||'—'}</span>
+      <div class="ra">
+        <button class="rib rph" onclick="pickImg(${g.no})">📷</button>
+        <button class="rib red" onclick="openEdit(${g.no})">✏</button>
+        <button class="rib rdl" onclick="openDel(${g.no})">✕</button>
+      </div>
+    </div>`).join('')}`;
+  vEl.appendChild(wrap);
+}
+
+function buildPills(){
+  const brands=[...new Set(G.map(g=>g.b))].sort();
+  const w=document.getElementById('pills');
+  w.innerHTML=`<button class="fp ${BF===''?'on':''}" onclick="setBF('')">الكل (${G.length})</button>`;
+  brands.forEach(b=>{
+    const cnt=G.filter(g=>g.b===b).length;
+    const btn=document.createElement('button');
+    btn.className='fp'+(BF===b?' on':'');
+    btn.textContent=`${b} (${cnt})`;
+    btn.onclick=()=>setBF(b);
+    w.appendChild(btn);
+  });
+}
+function setBF(b){BF=b;buildPills();render();}
+
+function render(){
+  const q=document.getElementById('q').value.trim().toLowerCase();
+  let list=[...G];
+  if(BF)list=list.filter(g=>g.b===BF);
+  if(q)list=list.filter(g=>g.b.toLowerCase().includes(q)||g.v.toLowerCase().includes(q)||g.p.toLowerCase().includes(q)||String(g.no).includes(q)||(g.lc&&g.lc.toLowerCase().includes(q)));
+  document.getElementById('empty').style.display=list.length?'none':'';
+  stats(list);
+  if(V==='g')renderGrouped(list);else renderList(list);
+}
+function setV(v){V=v;document.getElementById('vg').classList.toggle('on',v==='g');document.getElementById('vl').classList.toggle('on',v==='l');render();}
+function toggleB(b,el){const bl=el.closest('.bb');if(OPEN.has(b)){OPEN.delete(b);bl.classList.remove('open');}else{OPEN.add(b);bl.classList.add('open');}}
+function toggleAll(){const all=grp(G).map(([b])=>b);if(OPEN.size>0){OPEN.clear();}else{all.forEach(b=>OPEN.add(b));}render();}
+
+function pickImg(no){imgNo=no;const fi=document.getElementById('fi');fi.value='';fi.click();}
+document.getElementById('fi').addEventListener('change',function(){
+  if(!this.files.length||imgNo===null)return;
+  const r=new FileReader();
+  r.onload=e=>{IMG[imgNo]=e.target.result;save();render();};
+  r.readAsDataURL(this.files[0]);
+});
+
+function rfBdl(){document.getElementById('bdl').innerHTML=[...new Set(G.map(g=>g.b))].sort().map(b=>`<option value="${b}">`).join('');}
+function openAdd(brand){
+  editNo=null;
+  document.getElementById('m-ttl').textContent='إضافة مولد جديد';
+  document.getElementById('f-no').value=G.length?Math.max(...G.map(g=>g.no))+1:1;
+  document.getElementById('f-br').value=brand||'';
+  ['f-vt','f-pw','f-lc','f-nt'].forEach(id=>document.getElementById(id).value='');
+  rfBdl();document.getElementById('m-ov').classList.remove('hidden');
+}
+function openEdit(no){
+  const g=G.find(x=>x.no===no);if(!g)return;
+  editNo=no;
+  document.getElementById('m-ttl').textContent=`تعديل المولد #${no}`;
+  document.getElementById('f-no').value=g.no;
+  document.getElementById('f-br').value=g.b;
+  document.getElementById('f-vt').value=g.v;
+  document.getElementById('f-pw').value=g.p;
+  document.getElementById('f-lc').value=g.lc||'';
+  document.getElementById('f-nt').value=g.nt||'';
+  rfBdl();document.getElementById('m-ov').classList.remove('hidden');
+}
+function closeM(){document.getElementById('m-ov').classList.add('hidden');}
+function saveG(){
+  const no=parseInt(document.getElementById('f-no').value);
+  const b=document.getElementById('f-br').value.trim();
+  const v=document.getElementById('f-vt').value.trim();
+  const p=document.getElementById('f-pw').value.trim();
+  if(!no||!b||!v||!p){alert('يرجى تعبئة الحقول المطلوبة (*)');return;}
+  const obj={no,b,v,p,lc:document.getElementById('f-lc').value.trim(),nt:document.getElementById('f-nt').value.trim()};
+  if(editNo===null){if(G.find(g=>g.no===no)){alert('الرقم موجود مسبقاً');return;}G.push(obj);bI(b);}
+  else{
+    if(no!==editNo&&G.find(g=>g.no===no)){alert('الرقم موجود مسبقاً');return;}
+    if(no!==editNo&&IMG[editNo]){IMG[no]=IMG[editNo];delete IMG[editNo];}
+    G[G.findIndex(g=>g.no===editNo)]=obj;bI(b);
+  }
+  G.sort((a,z)=>a.no-z.no);save();closeM();buildPills();render();
+}
+
+function openDel(no){delNo=no;const g=G.find(x=>x.no===no);document.getElementById('d-txt').textContent=`سيتم حذف المولد #${no} (${g?.b||''}) نهائياً مع صورته.`;document.getElementById('d-ov').classList.remove('hidden');}
+function closeD(){document.getElementById('d-ov').classList.add('hidden');}
+function doDelete(){G=G.filter(g=>g.no!==delNo);delete IMG[delNo];save();closeD();buildPills();render();}
+
+/* DRAG */
+let dragSrc=null;
+document.addEventListener('dragstart',e=>{const r=e.target.closest('.drag-row');if(!r)return;dragSrc=r;r.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+document.addEventListener('dragend',()=>{document.querySelectorAll('.drag-row').forEach(r=>r.classList.remove('dragging','drag-over'));dragSrc=null;});
+document.addEventListener('dragover',e=>{e.preventDefault();const r=e.target.closest('.drag-row');if(!r||r===dragSrc)return;document.querySelectorAll('.drag-over').forEach(x=>x.classList.remove('drag-over'));r.classList.add('drag-over');});
+document.addEventListener('drop',e=>{
+  e.preventDefault();
+  const t=e.target.closest('.drag-row');
+  if(!t||!dragSrc||t===dragSrc)return;
+  t.classList.remove('drag-over');
+  const si=G.findIndex(g=>g.no===+dragSrc.dataset.no);
+  const ti=G.findIndex(g=>g.no===+t.dataset.no);
+  if(si<0||ti<0)return;
+  const[m]=G.splice(si,1);G.splice(ti,0,m);
+  save();render();
+});
+
+document.getElementById('m-ov').addEventListener('click',function(e){if(e.target===this)closeM();});
+document.getElementById('d-ov').addEventListener('click',function(e){if(e.target===this)closeD();});
+
+load();buildPills();render();
+
+</script>
+<script id="__baked__">
+window.__BAKED_G__=[{"no":1,"v":"380/220V","p":"185 KW","b":"D-3406 CAT","lc":"","nt":""},{"no":2,"v":"220V","p":"8 KW","b":"KOHLER","lc":"","nt":""},{"no":3,"v":"220V","p":"8 KW","b":"KOHLER","lc":"","nt":""},{"no":4,"v":"220V","p":"8 KW","b":"KOHLER","lc":"","nt":""},{"no":5,"v":"220V","p":"8 KW","b":"KOHLER","lc":"","nt":""},{"no":6,"v":"220V","p":"8 KW","b":"KOHLER","lc":"","nt":""},{"no":7,"v":"220V","p":"8 KW","b":"KOHLER","lc":"","nt":""},{"no":8,"v":"220V","p":"8 KW","b":"KOHLER","lc":"","nt":""},{"no":9,"v":"380/220V","p":"210 KW","b":"D-3406 CAT","lc":"","nt":""},{"no":10,"v":"380/220V","p":"200 KW","b":"D-3406 CAT","lc":"","nt":""},{"no":11,"v":"380/220V","p":"135 KW","b":"KOHLER","lc":"","nt":""},{"no":12,"v":"220V","p":"8 KW","b":"CUMMINS","lc":"","nt":""},{"no":13,"v":"380V","p":"48 KW","b":"CUMMINS","lc":"","nt":""},{"no":14,"v":"380V","p":"48 KW","b":"CUMMINS","lc":"","nt":""},{"no":15,"v":"380V","p":"48 KW","b":"CUMMINS","lc":"","nt":""},{"no":16,"v":"380V","p":"48 KW","b":"CUMMINS","lc":"","nt":""},{"no":17,"v":"380V","p":"48 KW","b":"CUMMINS","lc":"","nt":""},{"no":18,"v":"380V","p":"48 KW","b":"CUMMINS","lc":"","nt":""},{"no":19,"v":"220V","p":"8 KW","b":"LISTER","lc":"","nt":""},{"no":20,"v":"220V","p":"8 KW","b":"LISTER","lc":"","nt":""},{"no":21,"v":"220/110V","p":"12 KW","b":"LISTER","lc":"","nt":""},{"no":22,"v":"220V","p":"27 KW","b":"PERKINS","lc":"","nt":""},{"no":23,"v":"380V","p":"100 KW","b":"CUMMINS","lc":"","nt":""},{"no":24,"v":"220V","p":"120 KW","b":"DE 150 EO","lc":"","nt":""},{"no":25,"v":"380V","p":"48 KW","b":"CUMMINS","lc":"","nt":""},{"no":26,"v":"380V","p":"28 KW","b":"PERKINS","lc":"","nt":""},{"no":27,"v":"380V","p":"27 KW","b":"PERKINS","lc":"","nt":""},{"no":28,"v":"380/220V","p":"350 KW","b":"PERKINS","lc":"","nt":""},{"no":29,"v":"380V","p":"396 KW","b":"CUMMINS - CHINA","lc":"","nt":""},{"no":30,"v":"380V","p":"396 KW","b":"CUMMINS - CHINA","lc":"","nt":""},{"no":31,"v":"480V","p":"500 KW","b":"CUMMINS - CHINA","lc":"","nt":""},{"no":32,"v":"380V","p":"800 KW","b":"PERKINS - CHINA","lc":"","nt":""},{"no":33,"v":"380V","p":"380 KW","b":"DOOSAN","lc":"","nt":""},{"no":34,"v":"380V","p":"400 KW","b":"PERKINS","lc":"","nt":""},{"no":35,"v":"380V","p":"400 KW","b":"PERKINS","lc":"","nt":""},{"no":36,"v":"380/220V","p":"350 KW","b":"PERKINS","lc":"","nt":""},{"no":37,"v":"220V","p":"350 KW","b":"PERKINS","lc":"","nt":""},{"no":38,"v":"380V","p":"384 KW","b":"PERKINS","lc":"","nt":""},{"no":39,"v":"380V","p":"384 KW","b":"PERKINS","lc":"","nt":""},{"no":40,"v":"380V","p":"380 KW","b":"DOOSAN","lc":"","nt":""},{"no":41,"v":"380V","p":"100 KW","b":"PERKINS","lc":"","nt":""},{"no":42,"v":"380/220V","p":"36 KW","b":"KIRLOSKAR","lc":"","nt":""},{"no":43,"v":"380/220V","p":"820 KW","b":"MTU","lc":"","nt":""},{"no":44,"v":"480V","p":"1000 KW","b":"CATTER D-3508","lc":"","nt":""},{"no":45,"v":"380V","p":"28.8 KW","b":"DEUTZ","lc":"","nt":""},{"no":46,"v":"380V","p":"27 KW","b":"PERKINS","lc":"","nt":""},{"no":47,"v":"380V","p":"210 KW","b":"D-3406 CAT","lc":"","nt":""},{"no":48,"v":"380V","p":"7 KW","b":"KOHLER","lc":"","nt":""},{"no":49,"v":"220/110V","p":"7.5 KW","b":"KOHLER","lc":"","nt":""},{"no":50,"v":"220/110V","p":"2 KW","b":"ROBIN","lc":"","nt":""},{"no":51,"v":"220V","p":"1.5 KW","b":"ROBIN","lc":"","nt":""},{"no":52,"v":"220V","p":"2.24 KW","b":"HONDA","lc":"","nt":""}];
+window.__BAKED_IMG__={};
+</script>
+</body>
+</html>
